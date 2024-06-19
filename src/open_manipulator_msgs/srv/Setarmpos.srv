@@ -1,0 +1,14 @@
+#string stone_position
+#bool movement
+#---
+#bool arm_move_flag
+########################################
+# stone_position은 바둑돌의 좌표
+# movement는 들어낼지 말지, True면 놓기, False면 들어내기
+# arm_move_flag는 행동 다 하고 제자리 왔는지 확인용
+########################################
+
+string stone_position
+string[] minus_stone_position
+---
+bool arm_move_flag

@@ -1,0 +1,8 @@
+string gripper_moving
+---
+bool gripper_flag
+########################################
+# arm_move_flag는 로봇팔이 움직임 상태, true가 로봇팔이 다 움직였을 때, false가 로봇팔이 멈췄을 때
+# gripper_moving으로 열어야하는지 닫아야하는지 true : 잡기, false : 벌리기(놓기)
+# gripper_flag로 gripper가 다 움직였는지 아닌지
+########################################
