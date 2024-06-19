@@ -1,3 +1,4 @@
+'''
 #!/usr/bin/env python
 #
 # Copyright (c) 2011, Willow Garage, Inc.
@@ -33,7 +34,7 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 # Author: Will Son
-
+'''
 from concurrent.futures import ThreadPoolExecutor
 from math import exp
 import os
@@ -245,7 +246,7 @@ def costum_inverse(pre_pos, delta_x = 0.0, delta_y = 0.0, delta_z = 0.0, flag = 
     print("theta: ",[theta_1,theta_2,theta_3,theta_4,theta_5,theta_6])
 
     g_pose=f.t_3_1.reshape([3, ])
-    g_theta = [theta_1,theta_2,theta_3,theta_4,theta_5 + (pi/180)*2 ,theta_6]
+    g_theta = [theta_1,theta_2,theta_3,theta_4,theta_5 + flag*(pi/180)*2 ,theta_6]
     return g_theta
     
 usage = """
@@ -365,11 +366,10 @@ class TeleopKeyboard(Node):
 
         print_present_values()
 
-        # path_time = 2.0
-        # goal_joint_angle = costum_inverse([0.228, -0.23 , 0.25]) # 잡는곳으로 옮기고 [0.228 + 0.08, -0.23 , 0.28]
-        # goal_joint_angle[-1] = pi/2
-        # self.send_goal_joint_space()
-        # time.sleep(path_time - 0.5)
+        path_time = 2.0
+        goal_joint_angle = costum_inverse([0.228, -0.23 , 0.25], flag=0) # 잡는곳으로 옮기고 [0.228 + 0.08, -0.23 , 0.28]
+        self.send_goal_joint_space()
+        time.sleep(path_time - 0.5)
 
     def check_vision_callback(self, cv: bool):
         msg = Vision()
@@ -378,7 +378,7 @@ class TeleopKeyboard(Node):
         self.check_vision_publisher.publish(msg)
 
     def make_xyz(board_size = 9, board_h = 0.0236, board_w = 0.022, chun_won = np.array([0.236,0.0,0.0]),
-                    err_chun_won = np.array([-0.01 - 0.004 +0.01, 0.01 + 0.01155 - 0.01 ,0.0])): #시작과 동시에 각 점에 해당하는 xyz 좌표를 쫙 뽑아글로벌로 저장해둠
+                    err_chun_won = np.array([-0.01 - 0.004 +0.01 - 0.002, 0.01 + 0.01155 - 0.01 - 0.007,0.0])): #시작과 동시에 각 점에 해당하는 xyz 좌표를 쫙 뽑아글로벌로 저장해둠
         '''
         <read me>
 
@@ -411,24 +411,24 @@ class TeleopKeyboard(Node):
                 rota2 = np.array([[0.99939083, -0.0348995, 0],
                                   [0.0348995, 0.99939083, 0],
                                   [0.0       , 0.0       , 1]])
-                tmp.append(np.dot(rota2,np.dot(rota, np.dot(cali_matrix, np.array([j, i ,1])))* np.array([board_h,board_w,0.26]) + np.array(chun_won - err_chun_won))
+                tmp.append(np.dot(rota2,np.dot(rota, np.dot(cali_matrix, np.array([j, i ,1])))* np.array([board_h,board_w,0.259]) + np.array(chun_won - err_chun_won))
                            + np.array([0.0, i * 0.001, 0.0]))
              
                                     
 
             xyz.append(tmp)
         
-        for i in range(len(xyz[:][0])):
-            xyz[:][i][0] += np.array([0.0, 0.01, 0.0])
+        # for i in range(len(xyz[:][0])):
+        #     xyz[:][i][0] += np.array([0.0, 0.01, 0.0])
 
-        for i in range(len(xyz[:][1])):
-            xyz[:][i][1] += np.array([0.0, 0.0075, 0.0])
+        # for i in range(len(xyz[:][1])):
+        #     xyz[:][i][1] += np.array([0.0, 0.0075, 0.0])
         
-        for i in range(len(xyz[:][2])):
-            xyz[:][i][2] += np.array([0.0, 0.005, 0.0])
+        # for i in range(len(xyz[:][2])):
+        #     xyz[:][i][2] += np.array([0.0, 0.005, 0.0])
 
-        for i in range(len(xyz[:][3])):
-            xyz[:][i][3] += np.array([0.0, 0.002, 0.0])
+        # for i in range(len(xyz[:][3])):
+        #     xyz[:][i][3] += np.array([0.0, 0.002, 0.0])
 
         return xyz
         
@@ -455,15 +455,15 @@ class TeleopKeyboard(Node):
         self.check_vision_callback(False)
         
         path_time = 1.0
-        goal_joint_angle = costum_inverse([0.228, -0.23 , 0.2625 - 0.026 - 0.015 ]) # 내리고 -0.025
-        goal_joint_angle[-1] = pi/2
+        goal_joint_angle = costum_inverse([0.228, -0.23 , 0.2625 - 0.026 -0.015 ], flag=0) # 내리고  0.2625 - 0.026 - 0.015
         self.send_goal_joint_space()
         time.sleep(path_time)
 
-        path_time = 1.5
-        goal_joint_angle = [0.176408, -0.799204,-0.460194,0.474000,0.254641,1.839243]
-        self.send_goal_joint_space()
-        time.sleep(path_time)
+        #온몸 비틀기
+        # path_time = 1.5
+        # goal_joint_angle = [0.176408, -0.799204,-0.460194,0.474000,0.254641,1.839243]
+        # self.send_goal_joint_space()
+        # time.sleep(path_time)
 
 
         self.send_gripper_command("1") #잡고
@@ -471,7 +471,7 @@ class TeleopKeyboard(Node):
         time.sleep(0.5)
 
         path_time = 1.5
-        goal_joint_angle = costum_inverse([0.228, -0.23 , 0.2625 ]) #올리고
+        goal_joint_angle = costum_inverse([0.228, -0.23 , 0.2625 ], flag=0) #올리고
         self.send_goal_joint_space()
         time.sleep(path_time )
 
@@ -481,12 +481,12 @@ class TeleopKeyboard(Node):
         # time.sleep(path_time)
 
         path_time = 2.0
-        goal_joint_angle = costum_inverse(xyz) #착수위치로 이동
+        goal_joint_angle = costum_inverse(xyz, flag=0) #착수위치로 이동
         self.send_goal_joint_space()
         time.sleep(path_time)
 
         path_time = 1.0
-        goal_joint_angle = costum_inverse(xyz, delta_z = -0.026)#내리고
+        goal_joint_angle = costum_inverse(xyz, delta_z = -0.02, flag=0)#내리고
         self.send_goal_joint_space()
         time.sleep(path_time)
 
@@ -495,7 +495,7 @@ class TeleopKeyboard(Node):
         time.sleep(0.5)
 
         path_time = 1.0
-        goal_joint_angle = costum_inverse(xyz, delta_z = 0.026) #올리고
+        goal_joint_angle = costum_inverse(xyz, delta_z = 0.02, flag=0) #올리고
         ###### 수정ing
         delta_theta = np.array(goal_joint_angle) - np.array(present_joint_angle)
         # for i in range()
@@ -524,12 +524,12 @@ class TeleopKeyboard(Node):
                 xyz = self.coordi_2_xyz(coordi)
 
                 path_time = 2.0
-                goal_joint_angle = costum_inverse(xyz) #착수위치로 이동
+                goal_joint_angle = costum_inverse(xyz, flag=0) #착수위치로 이동
                 self.send_goal_joint_space()
                 time.sleep(path_time)
 
                 path_time = 1.0
-                goal_joint_angle = costum_inverse(xyz, delta_z = -0.028)#내리고
+                goal_joint_angle = costum_inverse(xyz, delta_z = -0.028, flag=0)#내리고
                 self.send_goal_joint_space()
                 time.sleep(path_time)
 
@@ -538,12 +538,14 @@ class TeleopKeyboard(Node):
                 time.sleep(0.5)
 
                 path_time = 1.5
-                goal_joint_angle = costum_inverse(xyz, delta_z = 0.028) #올리고
+                goal_joint_angle = costum_inverse(xyz, delta_z = 0.028,flag=0) #올리고
                 self.send_goal_joint_space()
                 time.sleep(path_time)
 
+
+
                 path_time = 2.0
-                goal_joint_angle = costum_inverse([0.228, -0.23 , 0.25]) # 잡는곳으로 옮기고
+                goal_joint_angle = costum_inverse([0.19, -0.23 , 0.25],flag=0) # 잡는곳으로 옮기고
                 self.send_goal_joint_space()
                 time.sleep(path_time - 0.1)
 
@@ -551,10 +553,14 @@ class TeleopKeyboard(Node):
                 self.send_gripper_command("2")
                 time.sleep(0.5)
 
+                # path_time = 2.0
+                # goal_joint_angle = costum_inverse([0.228, -0.23 , 0.25], flag=0) # 잡는곳으로 옮기고
+                # self.send_goal_joint_space()
+                # time.sleep(path_time - 0.1)
+
         else:
             path_time = 2.0
-            goal_joint_angle = costum_inverse([0.228, -0.23 , 0.25]) # 잡는곳으로 옮기고
-            goal_joint_angle[-1] = pi/2
+            goal_joint_angle = costum_inverse([0.228, -0.23 , 0.25], flag=0) # 잡는곳으로 옮기고
             self.send_goal_joint_space()
             time.sleep(path_time - 0.1)
 
@@ -571,9 +577,7 @@ class TeleopKeyboard(Node):
         #통으로 가라 추가해 주세요
         # self.send_gripper_command("1")
 
-        # tmp = msg.stone_position
-        # tmp2 = msg.minus_stone_position
-        # self.send_gripper_command("1")
+        # tmp = msg.stone_position                goal_joint_angle[-1] = pi/2
 
         global goal_joint_angle,g_pose, path_time
         # 입력된 좌표가 유효한지 확인하는 함수를 호출합니다.
@@ -1149,7 +1153,8 @@ def main():
                             teleop_keyboard.chak_su_motion(teleop_keyboard.coordi_table[j][i], [])
                         
                    
-
+            elif key_value == '[': #앃기
+                pass
 
             else:
                 if key_value == '\x03':

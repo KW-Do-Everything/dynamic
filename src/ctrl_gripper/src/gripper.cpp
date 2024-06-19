@@ -163,14 +163,14 @@ public:
       int32_t goal_position[2] = {2048, 2048}; // 초기 위치
 
       if (request->gripper_moving == "1") {
-          goal_position[0] += 80; // 잡기/ 좁게하기
-          goal_position[1] -= 80;
+          goal_position[0] += 40; // 잡기/ 좁게하기
+          goal_position[1] -= 40;
 
       } 
       else if(request->gripper_moving == "2")
       {
-          goal_position[0] -= 340; // 놓기 /벌리기
-          goal_position[1] += 340;
+          goal_position[0] -= 180; // 놓기 /벌리기
+          goal_position[1] += 180;
           
       }
       else if(request->gripper_moving == "3")
