@@ -175,13 +175,13 @@ public:
       }
       else if(request->gripper_moving == "3")
       {
-          goal_position[0] += 120; // 크게 잡기
-          goal_position[1] -= 120;
+          goal_position[0] += 100; // 크게 잡기
+          goal_position[1] -= 100;
       }
       else if(request->gripper_moving == "4")
       {
-          goal_position[0] -= 260; // 크게 놓기
-          goal_position[1] += 260;
+          goal_position[0] -= 380; // 크게 놓기
+          goal_position[1] += 380;
       }
       std::cerr << goal_position[1] << goal_position[0] << std::endl;
 

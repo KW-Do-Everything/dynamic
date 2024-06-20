@@ -83,6 +83,8 @@ debug = True
 task_position_delta = 0.01  # meter
 joint_angle_delta = 0.05  # radian
 path_time = 2.8  # second
+
+g_flag = 0
 # tmp =''
 # tmp2 =[]
 
@@ -449,13 +451,13 @@ class TeleopKeyboard(Node):
         return self.coordi_table[col_index][ row_index]
     
     def chak_su_motion(self, xyz, ddanem): #착수 모션 수행 + 그리퍼 모션 까지 time.sleep() 이용해서
-        global goal_joint_angle, g_pose, path_time, present_joint_angle
+        global goal_joint_angle, g_pose, path_time, present_joint_angle,g_flag
 
         # stop vision
         self.check_vision_callback(False)
         
         path_time = 1.0
-        goal_joint_angle = costum_inverse([0.228, -0.23 , 0.2625 - 0.026 -0.015 ], flag=0) # 내리고  0.2625 - 0.026 - 0.015
+        goal_joint_angle = costum_inverse([0.228, -0.23 , 0.2625 - 0.026 -0.015 ], flag=g_flag) # 내리고  0.2625 - 0.026 - 0.015
         self.send_goal_joint_space()
         time.sleep(path_time)
 
@@ -471,7 +473,7 @@ class TeleopKeyboard(Node):
         time.sleep(0.5)
 
         path_time = 1.5
-        goal_joint_angle = costum_inverse([0.228, -0.23 , 0.2625 ], flag=0) #올리고
+        goal_joint_angle = costum_inverse([0.228, -0.23 , 0.2625 ], flag=g_flag) #올리고
         self.send_goal_joint_space()
         time.sleep(path_time )
 
@@ -481,12 +483,12 @@ class TeleopKeyboard(Node):
         # time.sleep(path_time)
 
         path_time = 2.0
-        goal_joint_angle = costum_inverse(xyz, flag=0) #착수위치로 이동
+        goal_joint_angle = costum_inverse(xyz, flag=g_flag) #착수위치로 이동
         self.send_goal_joint_space()
         time.sleep(path_time)
 
         path_time = 1.0
-        goal_joint_angle = costum_inverse(xyz, delta_z = -0.02, flag=0)#내리고
+        goal_joint_angle = costum_inverse(xyz, delta_z = -0.02, flag=g_flag)#내리고
         self.send_goal_joint_space()
         time.sleep(path_time)
 
@@ -495,7 +497,7 @@ class TeleopKeyboard(Node):
         time.sleep(0.5)
 
         path_time = 1.0
-        goal_joint_angle = costum_inverse(xyz, delta_z = 0.02, flag=0) #올리고
+        goal_joint_angle = costum_inverse(xyz, delta_z = 0.02, flag=g_flag) #올리고
         ###### 수정ing
         delta_theta = np.array(goal_joint_angle) - np.array(present_joint_angle)
         # for i in range()
@@ -545,13 +547,18 @@ class TeleopKeyboard(Node):
 
 
                 path_time = 2.0
-                goal_joint_angle = costum_inverse([0.19, -0.23 , 0.25],flag=0) # 잡는곳으로 옮기고
+                goal_joint_angle = costum_inverse([0.15, -0.23 , 0.25],flag=0) # 잡는곳으로 옮기고
                 self.send_goal_joint_space()
                 time.sleep(path_time - 0.1)
 
                 self.send_gripper_command("2") #놓고
                 self.send_gripper_command("2")
                 time.sleep(0.5)
+
+                path_time = 1.0
+                goal_joint_angle = costum_inverse([0.228, -0.23 , 0.25],flag=g_flag) # 잡는곳으로 옮기고
+                self.send_goal_joint_space()
+                time.sleep(path_time - 0.1)
 
                 # path_time = 2.0
                 # goal_joint_angle = costum_inverse([0.228, -0.23 , 0.25], flag=0) # 잡는곳으로 옮기고
@@ -560,7 +567,7 @@ class TeleopKeyboard(Node):
 
         else:
             path_time = 2.0
-            goal_joint_angle = costum_inverse([0.228, -0.23 , 0.25], flag=0) # 잡는곳으로 옮기고
+            goal_joint_angle = costum_inverse([0.228, -0.23 , 0.25], flag=g_flag) # 잡는곳으로 옮기고
             self.send_goal_joint_space()
             time.sleep(path_time - 0.1)
 
@@ -885,7 +892,7 @@ def print_present_values():
 
 
 def main():
-    global goal_kinematics_pose, prev_goal_kinematics_pose, goal_joint_angle, prev_goal_joint_angle,g_pose,path_time, tmp, tmp2
+    global goal_kinematics_pose, prev_goal_kinematics_pose, goal_joint_angle, prev_goal_joint_angle,g_pose,path_time, tmp, tmp2, g_flag
     
     settings = None
     if os.name != 'nt':
@@ -1010,9 +1017,23 @@ def main():
                 goal_joint_angle = costum_inverse(xyz,flag=0)
                 teleop_keyboard.send_goal_joint_space()
 
+            elif key_value == '0':
+                if g_flag == 0:
+                    g_flag = 1
+                else:
+                    g_flag = 0
+
             
 
             elif key_value == 'o': # 오셀로
+                teleop_keyboard.send_gripper_command("1") #놓고
+                teleop_keyboard.send_gripper_command("1")
+                time.sleep(0.5)
+
+                teleop_keyboard.send_gripper_command("4") #놓고
+                teleop_keyboard.send_gripper_command("4")
+                time.sleep(0.5)
+
                 path_time = 3.0
                 goal_joint_angle = costum_inverse([0.24, 0.107, 0.26], flag=0) #가고
                 teleop_keyboard.send_goal_joint_space()
@@ -1023,8 +1044,8 @@ def main():
                 teleop_keyboard.send_goal_joint_space()
                 time.sleep(path_time)
 
-                teleop_keyboard.send_gripper_command("1") #잡고
-                teleop_keyboard.send_gripper_command("1")
+                teleop_keyboard.send_gripper_command("3") #잡고
+                teleop_keyboard.send_gripper_command("3")
                 time.sleep(0.5)
 
                 path_time = 2.0
@@ -1037,8 +1058,8 @@ def main():
                 teleop_keyboard.send_goal_joint_space()
                 time.sleep(path_time)
 
-                teleop_keyboard.send_gripper_command("2") #놓고
-                teleop_keyboard.send_gripper_command("2")
+                teleop_keyboard.send_gripper_command("4") #놓고
+                teleop_keyboard.send_gripper_command("4")
                 time.sleep(0.5)
 
                 path_time = 2.0
@@ -1056,8 +1077,8 @@ def main():
                 teleop_keyboard.send_goal_joint_space()
                 time.sleep(path_time)
 
-                teleop_keyboard.send_gripper_command("1") #잡고
-                teleop_keyboard.send_gripper_command("1")
+                teleop_keyboard.send_gripper_command("3") #잡고
+                teleop_keyboard.send_gripper_command("3")
                 time.sleep(0.5)
 
                 path_time = 2.0
@@ -1077,8 +1098,8 @@ def main():
                 teleop_keyboard.send_goal_joint_space()
                 time.sleep(path_time - 0.2)
 
-                teleop_keyboard.send_gripper_command("2") #놓고
-                teleop_keyboard.send_gripper_command("2")
+                teleop_keyboard.send_gripper_command("4") #놓고
+                teleop_keyboard.send_gripper_command("4")
 
 
             elif key_value == 'c':
